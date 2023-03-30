@@ -29,7 +29,7 @@ public class VendingMachine {
             }
             else if(choice.equals("exit"))
             {
-                // good bye
+                // good byee
                 break;
             }
         }
