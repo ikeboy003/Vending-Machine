@@ -30,6 +30,7 @@ public class UserInput
         if (option.equals("d"))
         {
             return "display";
+            //This is where
         }
         else if (option.equals("p"))
         {
