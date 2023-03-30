@@ -46,6 +46,75 @@ public class UserInput
         }
 
     }
+    public String getPurchaseInputOption(BigDecimal amountProvided){
+        String [] prompts = {"(M) Feed Money",
+                "(S) Select Item",
+                "(F) Finish Transaction"};
 
-    
+        System.out.println("What would you like to do");
+        for(String s: prompts){
+            System.out.println(s);
+        }
+        System.out.println("Current Money Provided:"+ amountProvided);
+        System.out.print("\nPlease select an option: ");
+
+        String option = scanner.nextLine().toLowerCase();
+
+        if (option.equals("m"))
+        {
+            return "feed money";
+            //This is where
+        }
+        else if (option.equals("s"))
+        {
+            return "select item";
+        }
+        else if (option.equals("f"))
+        {
+            return "finish transaction";
+        }
+        else
+        {
+            return "";
+        }
+
+    }
+    public String getPurchaseInputOption(){
+
+        String [] prompts = {"(M) Feed Money",
+                "(S) Select Item",
+                "(F) Finish Transaction"};
+
+        System.out.println("What would you like to do");
+        for(String s: prompts){
+            System.out.println(s);
+        }
+        System.out.println("Current Money Provided:");
+        System.out.print("\nPlease select an option: ");
+
+        String option = scanner.nextLine().toLowerCase();
+
+        if (option.equals("m"))
+        {
+            return "feed money";
+            //This is where
+        }
+        else if (option.equals("s"))
+        {
+            return "select item";
+        }
+        else if (option.equals("f"))
+        {
+            return "finish transaction";
+        }
+        else
+        {
+            return "";
+        }
+
+    }
+
+    public static Scanner getScanner() {
+        return scanner;
+    }
 }

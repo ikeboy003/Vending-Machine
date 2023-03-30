@@ -9,13 +9,14 @@ import java.io.FileNotFoundException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class VendingMachine {
     private UserOutput userOutput;
     private UserInput userInput;
     private List<Food> listFood = new ArrayList<>();
-
+    private Customer customer = new Customer(new BigDecimal("0.0"));
 
     public VendingMachine(){
         this.userInput = new UserInput();
@@ -26,7 +27,6 @@ public class VendingMachine {
     {
 
         readInFromFile();
-
         while(true)
         {
             userOutput.displayHomeScreen();
@@ -34,15 +34,33 @@ public class VendingMachine {
 
             if(choice.equals("display"))
             {
-                listFood.forEach(food -> {
-
-                    System.out.printf("%s %s $%s Quantity: %s \n", food.getItemLocation(), food.getName(), food.getPrice(), food.getQuantity() == 0 ? "NO LONGER AVAILABLE" : food.getQuantity());
-
-                        });
+              printList();
 
             }
             else if(choice.equals("purchase"))
-            {
+            {;
+                choice = userInput.getPurchaseInputOption(customer.getCurrentMoneyProvided());
+
+                if(choice.equals("feed money")){
+                    boolean boolChoice = true;
+
+
+                    while(boolChoice){
+                        System.out.println("How Much money would you like to put in");
+                        BigDecimal amount = new BigDecimal(UserInput.getScanner().nextLine());
+                        customer.feedMoney(amount);
+                        System.out.println(customer.getCurrentMoneyProvided());
+                        System.out.println("Would you like to continue adding money Y/N");
+                        boolChoice = UserInput.getScanner().nextLine().equalsIgnoreCase("Y");
+                    }
+
+
+                }else if(choice.equals("select item")){
+                    choiceSelectItem();
+                }else if(choice.equals("finish transaction")){
+                    System.out.println("finish transaction");
+                }
+
                 // make a purchase
             }
             else if(choice.equals("exit"))
@@ -92,6 +110,32 @@ public class VendingMachine {
             System.exit(0);
         }
 
+    }
+
+    public Food getFoodItem(String location){
+        return listFood.stream()
+                .filter(foodItem -> foodItem.getItemLocation().toLowerCase().equals(location.toLowerCase()))
+                .findFirst().orElseThrow(NoSuchElementException::new);
+    }
+
+    public void printList(){
+        listFood.forEach(food -> {
+            System.out.printf("%s %s $%s Quantity: %s \n", food.getItemLocation(), food.getName(), food.getPrice(), food.getQuantity() == 0 ? "NO LONGER AVAILABLE" : food.getQuantity());
+        });
+    }
+    public void choiceSelectItem(){
+        printList();
+        System.out.println("Please Enter the item you want to select");
+
+        while(true){
+            try{
+                Food item =  getFoodItem(UserInput.getScanner().nextLine());
+                System.out.println(item.getName());
+                break;
+            }catch (NoSuchElementException e){
+                System.out.println("Please enter a Correct Location");
+            }
+        }
     }
 
 }
