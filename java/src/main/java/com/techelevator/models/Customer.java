@@ -12,8 +12,12 @@ public class Customer {
     public BigDecimal getCurrentMoneyProvided() {
         return currentMoneyProvided;
     }
+
     public void feedMoney(BigDecimal amountFed){
         currentMoneyProvided = currentMoneyProvided.add(amountFed);
+    }
 
+    public void makePurchase(BigDecimal price) {
+        currentMoneyProvided = currentMoneyProvided.subtract(price);
     }
 }

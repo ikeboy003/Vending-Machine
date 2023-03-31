@@ -33,6 +33,11 @@ public abstract class Food implements Sellable{
         return quantity;
     }
 
+    public void decrementQuantity() {
+        --quantity;
+    }
+
+
     @Override
     public BigDecimal getPrice() {
         return price;

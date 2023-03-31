@@ -1,6 +1,13 @@
 package com.techelevator.ui;
 
+import com.techelevator.application.VendingMachine;
+import com.techelevator.models.Customer;
+import com.techelevator.models.Food;
+
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 /**
@@ -11,6 +18,8 @@ import java.util.Scanner;
 public class UserInput
 {
     private static Scanner scanner = new Scanner(System.in);
+    private Customer customer = new Customer(new BigDecimal("0.00"));
+    private List<Food> selectedList = new ArrayList<>();
 
     public  String getHomeScreenOption()
     {
@@ -30,7 +39,6 @@ public class UserInput
         if (option.equals("d"))
         {
             return "display";
-            //This is where
         }
         else if (option.equals("p"))
         {
@@ -46,7 +54,7 @@ public class UserInput
         }
 
     }
-    public String getPurchaseInputOption(BigDecimal amountProvided){
+    public void getPurchaseInputOption(BigDecimal amountProvided){
         String [] prompts = {"(M) Feed Money",
                 "(S) Select Item",
                 "(F) Finish Transaction"};
@@ -55,66 +63,126 @@ public class UserInput
         for(String s: prompts){
             System.out.println(s);
         }
-        System.out.println("Current Money Provided:"+ amountProvided);
+        System.out.println("Current Money Provided: "+ amountProvided);
         System.out.print("\nPlease select an option: ");
 
         String option = scanner.nextLine().toLowerCase();
 
         if (option.equals("m"))
         {
-            return "feed money";
-            //This is where
+            userFeedMoney();
         }
         else if (option.equals("s"))
         {
-            return "select item";
+            choiceSelectItem();
         }
         else if (option.equals("f"))
         {
-            return "finish transaction";
+            finishTransaction();
+            System.out.println("Thank you! Please come again.");
         }
         else
         {
-            return "";
+            userFeedMoney();
         }
 
     }
-    public String getPurchaseInputOption(){
+//    public String getPurchaseInputOption(){
+//
+//        String [] prompts = {"(M) Feed Money",
+//                "(S) Select Item",
+//                "(F) Finish Transaction"};
+//
+//        System.out.println("What would you like to do");
+//        for(String s: prompts){
+//            System.out.println(s);
+//        }
+//        System.out.println("Current Money Provided:");
+//        System.out.print("\nPlease select an option: ");
+//
+//        String option = scanner.nextLine().toLowerCase();
+//
+//        if (option.equals("m"))
+//        {
+//            return "feed money";
+//        }
+//        else if (option.equals("s"))
+//        {
+//            return "select item";
+//        }
+//        else if (option.equals("f"))
+//        {
+//            return "finish transaction";
+//        }
+//        else
+//        {
+//            return "";
+//        }
+//
+//    }
 
-        String [] prompts = {"(M) Feed Money",
-                "(S) Select Item",
-                "(F) Finish Transaction"};
+    public void userFeedMoney() {
+        boolean boolChoice = true;
 
-        System.out.println("What would you like to do");
-        for(String s: prompts){
-            System.out.println(s);
-        }
-        System.out.println("Current Money Provided:");
-        System.out.print("\nPlease select an option: ");
 
-        String option = scanner.nextLine().toLowerCase();
-
-        if (option.equals("m"))
-        {
-            return "feed money";
-            //This is where
+        while (boolChoice) {
+            System.out.println("How Much money would you like to put in");
+            BigDecimal amount = new BigDecimal(scanner.nextLine());
+            customer.feedMoney(amount);
+            System.out.println(customer.getCurrentMoneyProvided());
+            System.out.println("Would you like to continue adding money Y/N");
+            boolChoice = scanner.nextLine().equalsIgnoreCase("Y");
         }
-        else if (option.equals("s"))
-        {
-            return "select item";
-        }
-        else if (option.equals("f"))
-        {
-            return "finish transaction";
-        }
-        else
-        {
-            return "";
-        }
-
+        getPurchaseInputOption(customer.getCurrentMoneyProvided());
     }
 
-    public static Scanner getScanner() {
-        return scanner;
+    public void choiceSelectItem(){
+        VendingMachine vendingMachine = new VendingMachine();
+        vendingMachine.printList();
+        System.out.println("Please Enter the item you want to select");
+
+        while(true){
+            try{
+                Food item =  vendingMachine.getFoodItem(scanner.nextLine());
+                selectedList.add(item);
+                System.out.println(item.getName());
+                break;
+            }catch (NoSuchElementException e){
+                System.out.println("Please enter a Correct Location");
+            }
+        }
     }
+
+    public void finishTransaction() {
+        VendingMachine vendingMachine = new VendingMachine();
+        BigDecimal totalPrice = new BigDecimal("0.00");
+
+        for (int i = 0; i < selectedList.size(); i++) {
+          if (i % 2 == 0) {
+              totalPrice = totalPrice.add(selectedList.get(i).getPrice().subtract(new BigDecimal("1.00")));
+          } else {
+              totalPrice = totalPrice.add(selectedList.get(i).getPrice());
+          }
+        }
+        if (totalPrice.compareTo(customer.getCurrentMoneyProvided()) <= 0) {
+            System.out.println("Purchase was successful!");
+            List<Food> foodList = vendingMachine.getListFood();
+            for (Food f : selectedList) {
+                if (foodList.contains(f)) {
+                    foodList.get(foodList.indexOf(f)).decrementQuantity();
+                }
+            }
+            customer.makePurchase(totalPrice);
+        } else {
+            System.out.println("Insufficient funds, please insert the correct amount.");
+            System.out.println("Current funds: " + customer.getCurrentMoneyProvided() + " Money needed: " + totalPrice);
+
+        }
+    }
+
+    public Customer getCustomer() {
+        return this.customer;
+    }
+
+
 }
