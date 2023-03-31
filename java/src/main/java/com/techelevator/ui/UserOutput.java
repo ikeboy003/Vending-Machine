@@ -1,7 +1,8 @@
 package com.techelevator.ui;
 
-import java.math.BigDecimal;
-import java.util.Map;
+import com.techelevator.models.Food;
+import java.util.List;
+
 
 
 /**
@@ -13,20 +14,32 @@ import java.util.Map;
 public class UserOutput
 {
 
-    public void displayMessage(String message)
-    {
-        System.out.println();
+    public void displayMessage(String message) {
         System.out.println(message);
-        System.out.println();
     }
 
-    public void displayHomeScreen()
-    {
+
+    public void displayHomeScreen() {
         System.out.println();
         System.out.println("***************************************************");
         System.out.println("                      Home");
         System.out.println("***************************************************");
         System.out.println();
     }
+
+    public void displayFoodList(List<Food> foodList) {
+        for (Food f : foodList) {
+            String quantity = String.valueOf(f.getQuantity());
+            if (f.getQuantity() ==0) {
+                quantity = "NO LONGER AVAILABLE";
+            }
+            System.out.println(f.getItemLocation()
+                    +", "+ f.getName()
+                    +" $"+ f.getPrice()
+                    + " Quantity: " + quantity);
+        }
+    }
+
+    
 
 }
