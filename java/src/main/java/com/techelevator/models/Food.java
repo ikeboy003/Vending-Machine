@@ -14,7 +14,7 @@ public abstract class Food implements Sellable{
         this.name = name;
         this.price = price;
         this.foodType = foodType;
-        this.quantity = 1;
+        this.quantity = 6;
     }
 
     public String getItemLocation() {
