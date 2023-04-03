@@ -8,4 +8,8 @@ public class Candy extends Food{
         super(itemLocation, name, price, FoodType.CANDY);
     }
 
+    @Override
+    public void printMessage() {
+        System.out.println("Sugar, Sugar, so Sweet!");
+    }
 }

@@ -1,27 +1,27 @@
 package com.techelevator.application;
 
+import com.techelevator.exceptions.NotSuchFoodException;
 import com.techelevator.models.*;
 import com.techelevator.ui.UserInput;
 import com.techelevator.ui.UserOutput;
 
+import javax.swing.text.html.Option;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
+import java.util.*;
 
 public class VendingMachine {
     private UserOutput userOutput;
     private UserInput userInput;
     private List<Food> listFood = new ArrayList<>();
-
+    private Customer customer;
 
     public VendingMachine(){
         readInFromFile();
         this.userInput = new UserInput();
         this.userOutput = new UserOutput();
+        customer = new Customer(new BigDecimal("0.0"));
     }
 
     public void run()
@@ -34,32 +34,32 @@ public class VendingMachine {
 
             if(choice.equals("display"))
             {
-              printList();
+              displayItems();
 
             }
             else if(choice.equals("purchase"))
             {
-                userInput.getPurchaseInputOption(userInput.getCustomer().getCurrentMoneyProvided());
+                userInput.getPurchaseInputOption(this,customer);
 
             }
             else if(choice.equals("exit"))
             {
-                // good bye
+
                 break;
             }
         }
     }
 
     private void readInFromFile() {
-        File vendingFile = new File("catering.csv");
 
         //logger later
 
-        try (Scanner fileScanner = new Scanner(vendingFile)) {
+
+        try (Scanner fileScanner = new Scanner(new File("catering.csv"))) {
             while (fileScanner.hasNextLine()) {
 
-                String line = fileScanner.nextLine();
-                String[] foodProperties = line.split(",");
+                String fileLine = fileScanner.nextLine();
+                String[] foodProperties = fileLine.split(",");
 
                 String location = foodProperties[0];
                 String name = foodProperties[1];
@@ -93,18 +93,31 @@ public class VendingMachine {
 
     public Food getFoodItem(String location){
         return listFood.stream()
-                .filter(foodItem -> foodItem.getItemLocation().toLowerCase().equals(location.toLowerCase()))
-                .findFirst().orElseThrow(NoSuchElementException::new);
+                .filter(foodItem -> foodItem.getItemLocation().toLowerCase().equals(location.toLowerCase())&&foodItem.getQuantity()>0)
+                .findFirst().orElseThrow(() -> new NotSuchFoodException("Please Enter a currect location"));
     }
 
-    public void printList(){
-        listFood.forEach(food -> {
+    public void dcrementQuantity(Food food){
+
+        listFood.stream().filter(streamFood -> streamFood.equals(food)).findAny().get().decrementQuantity();
+
+    }
+
+    public void displayItems(){
+        getListFood().forEach(food -> {
             System.out.printf("%s %s $%s Quantity: %s \n", food.getItemLocation(), food.getName(), food.getPrice(), food.getQuantity() == 0 ? "NO LONGER AVAILABLE" : food.getQuantity());
         });
     }
 
     public List<Food> getListFood() {
         return this.listFood;
+    }
+
+    public int getFoodQuantity(Food f) {
+
+        return getFoodItem(f.getItemLocation()).getQuantity();
+
+
     }
 
 }

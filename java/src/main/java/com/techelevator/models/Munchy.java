@@ -9,5 +9,8 @@ public class Munchy extends Food {
     }
 
 
-
+    @Override
+    public void printMessage() {
+        System.out.println("Munchy, Munchy, so Good!");
+    }
 }

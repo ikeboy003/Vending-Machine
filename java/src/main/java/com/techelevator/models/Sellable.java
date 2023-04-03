@@ -6,6 +6,7 @@ public interface Sellable {
 
 
     BigDecimal getPrice();
+    void printMessage();
 
 
 }

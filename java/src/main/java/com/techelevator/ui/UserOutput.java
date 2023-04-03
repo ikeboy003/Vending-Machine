@@ -1,6 +1,10 @@
 package com.techelevator.ui;
 
+import com.techelevator.application.VendingMachine;
+import com.techelevator.models.Food;
+
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 
 
@@ -26,5 +30,6 @@ public class UserOutput
         System.out.println("***************************************************");
         System.out.println();
     }
+
 
 }

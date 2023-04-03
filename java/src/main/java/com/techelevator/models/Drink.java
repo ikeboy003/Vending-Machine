@@ -8,4 +8,9 @@ public class Drink extends Food{
         super(itemLocation, name, price, FoodType.DRINK);
     }
 
+
+    @Override
+    public void printMessage() {
+        System.out.println("Drinky, Drinky, Slurp Slurp!");
+    }
 }

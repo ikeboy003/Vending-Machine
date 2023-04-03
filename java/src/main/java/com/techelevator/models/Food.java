@@ -14,7 +14,7 @@ public abstract class Food implements Sellable{
         this.name = name;
         this.price = price;
         this.foodType = foodType;
-        this.quantity = 6;
+        this.quantity = 1;
     }
 
     public String getItemLocation() {
@@ -34,13 +34,18 @@ public abstract class Food implements Sellable{
     }
 
     public void decrementQuantity() {
-        --quantity;
+        quantity--;
     }
 
 
     @Override
     public BigDecimal getPrice() {
         return price;
+    }
+
+
+    public void applyDiscount(){
+        price = price.subtract(new BigDecimal(1));
     }
 
 }
