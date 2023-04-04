@@ -1,5 +1,6 @@
 package com.techelevator.application;
 
+import com.techelevator.audit.AuditLogger;
 import com.techelevator.models.*;
 import com.techelevator.ui.UserInput;
 import com.techelevator.ui.UserOutput;
@@ -7,6 +8,7 @@ import com.techelevator.ui.UserOutput;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class VendingMachine {
@@ -15,15 +17,20 @@ public class VendingMachine {
     private List<Food> listOfFood = new ArrayList<>();
     private Customer customer = new Customer();
     private int itemsBought = 1;
+    private AuditLogger logger;
+
 
     public VendingMachine(){
         this.userInput = new UserInput();
         this.userOutput = new UserOutput();
+        this.logger = new AuditLogger("Audit.txt");
     }
 
     public void run()
     {
         readInFromFile();
+
+
         while(true)
         {
             userOutput.displayHomeScreen();
@@ -36,13 +43,11 @@ public class VendingMachine {
             else if(choice.equals("purchase"))
             {
                 while (true) {
-
-
                     String purchaseChoice = userInput.getPurchaseMenuOption(customer.getCurrentFunds());
 
                     if (purchaseChoice.equalsIgnoreCase("money"))
                     {
-                        customer.addFunds(userInput.inputMoney());
+                        customer.addFunds(userInput.inputMoney(customer.getCurrentFunds()));
                     }
                     else if (purchaseChoice.equalsIgnoreCase("select"))
                     {
@@ -85,10 +90,12 @@ public class VendingMachine {
             }
         }
 
+        Food food = foodToPurchase.get(0);
         //I know there's a better way to get the food object, but unless it's iterating through the types of food
         //and creating it's own object here, i'm doing it this way
         BigDecimal cost = foodToPurchase.get(0).getPrice();
 
+        BigDecimal prevPurchaseFunds = customer.getCurrentFunds();
 
         if (currentFunds.compareTo(cost) < 0) {
             userOutput.displayMessage("Please add more funds to purchase your selection.");
@@ -101,6 +108,7 @@ public class VendingMachine {
             customer.purchaseItem(cost);
             foodToPurchase.get(0).purchaseFood();
             itemsBought++;
+            logger.write(food.getName() + " " + food.getItemLocation() + " $" + prevPurchaseFunds + " $" + customer.getCurrentFunds());
             userOutput.displayMessage("Thank you for your purchase of " + foodToPurchase.get(0).getName()
                     + " for $" + cost + ". You have $" + customer.getCurrentFunds() + " remaining."
             );
@@ -142,8 +150,10 @@ public class VendingMachine {
 
         coinMap.putAll(getChange(coinValueMap, change));
 
+        BigDecimal totalChange = new BigDecimal(dollarBills).add(change);
+        logger.write("CHANGE GIVEN: $" + totalChange + " $0.00");
 
-        userOutput.displayMessage("Your change is $" + change + " as "
+        userOutput.displayMessage("Your change is $" + totalChange + " as "
                 + dollarBills +" dollar bills, "
                 + coinMap.get(quarters) +" quarters, "
                 + coinMap.get(dimes) + " dimes, "
@@ -178,7 +188,7 @@ public class VendingMachine {
     private void readInFromFile() {
         File vendingFile = new File("catering.csv");
 
-        //logger later
+        logger.write("\nLOADED STOCK");
 
         try (Scanner fileScanner = new Scanner(vendingFile)) {
             while (fileScanner.hasNextLine()) {

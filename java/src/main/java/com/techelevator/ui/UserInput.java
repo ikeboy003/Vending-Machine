@@ -1,6 +1,8 @@
 package com.techelevator.ui;
 
 
+import com.techelevator.audit.AuditLogger;
+
 import java.math.BigDecimal;
 import java.util.Scanner;
 
@@ -12,6 +14,7 @@ import java.util.Scanner;
 public class UserInput
 {
     private static Scanner scanner = new Scanner(System.in);
+    private AuditLogger logger = new AuditLogger("Audit.txt");
 
     public  String getHomeScreenOption()
     {
@@ -84,7 +87,7 @@ public class UserInput
     }
 
 
-    public BigDecimal inputMoney() {
+    public BigDecimal inputMoney(BigDecimal currentTotalFunds) {
         BigDecimal inputMoneyTotal = new BigDecimal("0.00");
         System.out.println("Please input valid bills into the machine, one at a time, " +
                 "or type \"finished\" if you are finished");
@@ -99,7 +102,10 @@ public class UserInput
             } else if (!nextLine.equals("1") && !nextLine.equals("5") && !nextLine.equals("10") && !nextLine.equals("20")) {
                 System.out.println("Please insert a valid bill");
             } else {
-                inputMoneyTotal = inputMoneyTotal.add(new BigDecimal(nextLine));
+                BigDecimal addedFunds = new BigDecimal(nextLine);
+                inputMoneyTotal = inputMoneyTotal.add(addedFunds);
+                currentTotalFunds = currentTotalFunds.add(addedFunds);
+                logger.write("MONEY FED: $" + addedFunds + " $" + currentTotalFunds);
                 System.out.println("Your added current funds are: $" + inputMoneyTotal);
             }
             //check if bill is valid, if not tell user, if so, add to total.
