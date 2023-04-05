@@ -120,7 +120,7 @@ public class UserInput
     public String selectFoodItem() {
         System.out.println("Type \"finished\" to finish browsing.");
         System.out.print("Please input the location of the item you wish to purchase: ");
-        return scanner.nextLine();
+        return scanner.nextLine().toLowerCase();
     }
 
 

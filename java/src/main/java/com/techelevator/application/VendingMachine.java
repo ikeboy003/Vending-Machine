@@ -5,6 +5,7 @@ import com.techelevator.models.*;
 import com.techelevator.ui.UserInput;
 import com.techelevator.ui.UserOutput;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.math.BigDecimal;
@@ -29,7 +30,6 @@ public class VendingMachine {
     public void run()
     {
         readInFromFile();
-
 
         while(true)
         {
@@ -90,41 +90,47 @@ public class VendingMachine {
             }
         }
 
-        Food food = foodToPurchase.get(0);
-        //I know there's a better way to get the food object, but unless it's iterating through the types of food
-        //and creating it's own object here, i'm doing it this way
-        BigDecimal cost = foodToPurchase.get(0).getPrice();
+        if (foodToPurchase.size() == 0){
+            userOutput.displayMessage("Invalid Entry");
 
-        BigDecimal prevPurchaseFunds = customer.getCurrentFunds();
+        }else {
+//FIX
+//        Food food = foodToPurchase.get(0);
+            //I know there's a better way to get the food object, but unless it's iterating through the types of food
+            //and creating it's own object here, i'm doing it this way
+            BigDecimal cost = foodToPurchase.get(0).getPrice();
 
-        if (currentFunds.compareTo(cost) < 0) {
-            userOutput.displayMessage("Please add more funds to purchase your selection.");
-        } else if (foodToPurchase.get(0).getQuantity() == 0) {
-            userOutput.displayMessage("NO LONGER AVAILABLE");
-        } else {
-            if (itemsBought % 2 == 0) {
-                cost = cost.subtract(new BigDecimal("1.00"));
-            }
-            customer.purchaseItem(cost);
-            foodToPurchase.get(0).purchaseFood();
-            itemsBought++;
-            logger.write(food.getName() + " " + food.getItemLocation() + " $" + prevPurchaseFunds + " $" + customer.getCurrentFunds());
-            userOutput.displayMessage("Thank you for your purchase of " + foodToPurchase.get(0).getName()
-                    + " for $" + cost + ". You have $" + customer.getCurrentFunds() + " remaining."
-            );
-            switch (foodToPurchase.get(0).getType()) {
-                case "Munchy":
-                    userOutput.displayMessage("Munchy, Munchy, so Good!");
-                    break;
-                case "Candy":
-                    userOutput.displayMessage("Sugar, Sugar, so Sweet!");
-                    break;
-                case "Gum":
-                    userOutput.displayMessage("Chewy, Chewy, Lots O Bubbles!");
-                    break;
-                case "Drink":
-                    userOutput.displayMessage("Drinky, Drinky, Slurp Slurp!");
-                    break;
+            BigDecimal prevPurchaseFunds = customer.getCurrentFunds();
+
+            if (currentFunds.compareTo(cost) < 0) {
+                userOutput.displayMessage("Please add more funds to purchase your selection.");
+            } else if (foodToPurchase.get(0).getQuantity() == 0) {
+                userOutput.displayMessage("NO LONGER AVAILABLE");
+            } else {
+                if (itemsBought % 2 == 0) {
+                    cost = cost.subtract(new BigDecimal("1.00"));
+                }
+                customer.purchaseItem(cost);
+                foodToPurchase.get(0).purchaseFood();
+                itemsBought++;
+                logger.write(foodToPurchase.get(0).getName() + " " + foodToPurchase.get(0).getItemLocation() + " $" + prevPurchaseFunds + " $" + customer.getCurrentFunds());
+                userOutput.displayMessage("Thank you for your purchase of " + foodToPurchase.get(0).getName()
+                        + " for $" + cost + ". You have $" + customer.getCurrentFunds() + " remaining."
+                );
+                switch (foodToPurchase.get(0).getType()) {
+                    case "Munchy":
+                        userOutput.displayMessage("Munchy, Munchy, so Good!");
+                        break;
+                    case "Candy":
+                        userOutput.displayMessage("Sugar, Sugar, so Sweet!");
+                        break;
+                    case "Gum":
+                        userOutput.displayMessage("Chewy, Chewy, Lots O Bubbles!");
+                        break;
+                    case "Drink":
+                        userOutput.displayMessage("Drinky, Drinky, Slurp Slurp!");
+                        break;
+                }
             }
         }
     }
@@ -133,48 +139,48 @@ public class VendingMachine {
     private void finishShopping() {
         BigDecimal change = customer.getCurrentFunds();
         Map<String, Integer> coinMap = new HashMap<>();
-        Map<String, BigDecimal> coinValueMap = new HashMap<>();
+
 
         String dollarBills = String.valueOf(change.intValue());
         change = change.subtract(new BigDecimal(dollarBills));
 
-        String quarters = "quarters";
-        String dimes = "dimes";
-        String nickles = "nickles";
-        String pennies = "pennies";
 
-        coinValueMap.put(quarters,  new BigDecimal("0.25"));
-        coinValueMap.put(dimes, new BigDecimal("0.10"));
-        coinValueMap.put(nickles, new BigDecimal("0.05"));
-        coinValueMap.put(pennies, new BigDecimal("0.01"));
-
-        coinMap.putAll(getChange(coinValueMap, change));
+        coinMap.putAll(getChange(change));
 
         BigDecimal totalChange = new BigDecimal(dollarBills).add(change);
         logger.write("CHANGE GIVEN: $" + totalChange + " $0.00");
 
         userOutput.displayMessage("Your change is $" + totalChange + " as "
                 + dollarBills +" dollar bills, "
-                + coinMap.get(quarters) +" quarters, "
-                + coinMap.get(dimes) + " dimes, "
-                + coinMap.get(nickles) + " nickles, and "
-                + coinMap.get(pennies) + " pennies."
+                + coinMap.get("quarters") +" quarters, "
+                + coinMap.get("dimes") + " dimes, "
+                + coinMap.get("nickles") + " nickles, and "
+                + coinMap.get("pennies") + " pennies."
         );
     }
 
-    private Map<String, Integer> getChange(Map<String, BigDecimal> coinValueMap, BigDecimal change) {
+    private Map<String, Integer> getChange(BigDecimal change) {
+
+        List<BigDecimal> coinValueList = new ArrayList<>(Arrays.asList(new BigDecimal("0.25"), new BigDecimal("0.10"), new BigDecimal("0.05"), new BigDecimal("0.01")));
+
+        List<String> coinType = new ArrayList<>(Arrays.asList("quarters", "dimes", "nickles", "pennies"));
+
         Map<String, Integer> changeMap = new HashMap<>();
+
         BigDecimal zero = new BigDecimal("0.00");
 
-        for (Map.Entry<String, BigDecimal> coin : coinValueMap.entrySet()) {
-            changeMap.put(coin.getKey(), 0);
+        for (int i = 0; i < coinValueList.size(); i++) {
+            String coinName = coinType.get(i);
+            BigDecimal coinValue = coinValueList.get(i);
+
+            changeMap.put(coinName, 0);
 
             while (change.compareTo(zero) > 0) {
 
-                if (change.subtract(coin.getValue()).compareTo(zero) >= 0) {
+                if (change.subtract(coinValue).compareTo(zero) >= 0) {
 
-                    change = change.subtract(coin.getValue());
-                    changeMap.put(coin.getKey(), changeMap.get(coin.getKey())+1);
+                    change = change.subtract(coinValue);
+                    changeMap.put(coinName, changeMap.get(coinName)+1);
 
                 } else {
                     break;

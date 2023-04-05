@@ -35,5 +35,5 @@ public class VendingMachineTesting {
         Assert.assertEquals(new BigDecimal("3.00"), customer.getCurrentFunds());
     }
 
-    
+
 }
