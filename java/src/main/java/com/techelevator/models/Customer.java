@@ -6,7 +6,7 @@ public class Customer {
     private BigDecimal currentFunds;
 
     public Customer() {
-        this.currentFunds = new BigDecimal("0.0");
+        this.currentFunds = new BigDecimal("0.00");
     }
 
     public BigDecimal getCurrentFunds() {
@@ -18,7 +18,9 @@ public class Customer {
     }
 
     public void purchaseItem(BigDecimal itemCost) {
-        currentFunds = currentFunds.subtract(itemCost);
+        if (currentFunds.subtract(itemCost).compareTo(new BigDecimal("0.00")) >= 0) {
+            currentFunds = currentFunds.subtract(itemCost);
+        }
     }
 
 }
