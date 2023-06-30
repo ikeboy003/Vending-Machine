@@ -1,4 +1,4 @@
-# module-1-capstone-main
+# vending-machine-capstone
 
 
 
